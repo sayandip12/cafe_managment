@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - ora CAFE Management System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Settings</h1>
+        <p>System configuration.</p>
+    </div>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-title">General Settings</div>
+    
+    <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 14px;">Cafe Name <span style="color: #d32f2f; font-size: 12px; margin-left: 8px;">(Read-only)</span></label>
+        <input type="text" value="ora CAFE" readonly style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f5f6fa; cursor: not-allowed; color: var(--text-secondary);">
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 14px;">System Timezone <span style="color: #d32f2f; font-size: 12px; margin-left: 8px;">(Read-only)</span></label>
+        <input type="text" value="Local System Time" readonly style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background-color: #f5f6fa; cursor: not-allowed; color: var(--text-secondary);">
+    </div>
+
+    <div class="alert alert-info" style="padding: 15px; background: #e3f2fd; color: #0d47a1; border-radius: 4px; margin-top: 20px;">
+         Advanced configuration is managed directly via the local database files to ensure system stability.
+    </div>
+</div>
+{% endblock %}

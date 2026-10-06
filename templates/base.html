@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ora CAFE Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% if session.get('user_id') %}
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" id="secret-admin-logo" style="max-width: 100%; height: auto; margin-bottom: 10px; cursor: pointer;" alt="ora CAFE">
+            <br>
+            <span>{% if session.get('role') == 'admin' or session.get('admin_authenticated') %}Admin Panel{% else %}Staff Panel{% endif %}</span>
+        </div>
+        
+        <nav>
+            {% if session.get('role') == 'admin' or session.get('admin_authenticated') %}
+                <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}"> Dashboard</a>
+                <a href="{{ url_for('room_view') }}" class="{% if request.endpoint == 'room_view' %}active{% endif %}"> Room View</a>
+                <a href="{{ url_for('customers_view') }}" class="{% if request.endpoint == 'customers_view' or request.endpoint == 'customer_details' %}active{% endif %}"> Customers</a>
+                <a href="{{ url_for('admin_staff') }}" class="{% if request.endpoint == 'admin_staff' %}active{% endif %}"> Staff Management</a>
+                <a href="#"> Sessions</a>
+                <a href="{{ url_for('billing_list') }}" class="{% if 'billing' in request.endpoint %}active{% endif %}"> Billing & Payments</a>
+                <a href="{{ url_for('admin_services') }}" class="{% if request.endpoint == 'admin_services' %}active{% endif %}"> Services & Rates</a>
+                <a href="{{ url_for('admin_computers') }}" class="{% if request.endpoint == 'admin_computers' %}active{% endif %}"> Computers</a>
+                <a href="{{ url_for('admin_reports') }}" class="{% if request.endpoint == 'admin_reports' %}active{% endif %}"> Reports</a>
+                <a href="{{ url_for('settings_page') }}" class="{% if request.endpoint == 'settings_page' %}active{% endif %}"> Settings</a>
+            {% else %}
+                <a href="{{ url_for('staff_dashboard') }}" class="{% if request.endpoint == 'staff_dashboard' %}active{% endif %}"> Dashboard</a>
+                <a href="{{ url_for('room_view') }}" class="{% if request.endpoint == 'room_view' %}active{% endif %}"> Room View</a>
+                <a href="{{ url_for('customers_view') }}" class="{% if request.endpoint == 'customers_view' or request.endpoint == 'customer_details' %}active{% endif %}"> Customers</a>
+                <a href="#"> Active Sessions</a>
+                <a href="{{ url_for('billing_list') }}" class="{% if 'billing' in request.endpoint %}active{% endif %}"> Billing</a>
+
+                <a href="{{ url_for('messages_page') }}" class="{% if request.endpoint == 'messages_page' %}active{% endif %}"> Messages</a>
+                <a href="{{ url_for('settings_page') }}" class="{% if request.endpoint == 'settings_page' %}active{% endif %}"> Settings</a>
+            {% endif %}
+        </nav>
+        
+        <div style="margin-top: auto; display: flex; flex-direction: column;">
+            {% if session.get('admin_authenticated') and session.get('role') != 'admin' %}
+            <a href="{{ url_for('admin_exit') }}" class="logout" style="margin-bottom: 5px;">🚪 Exit Admin</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="logout">🚪 Logout</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <header class="top-header">
+            <div class="search-bar" style="position: relative;">
+                <span></span>
+                <input type="text" id="global-search-input" placeholder="Search customer (Name, Mobile, ID)..." style="margin-left: 8px;">
+                <div id="search-results-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="notification"></div>
+                <div class="avatar">{{ session.get('name')[0] if session.get('name') else 'U' }}</div>
+                <div class="info">
+                    <span class="name">{{ session.get('name') }}</span>
+                    <span class="role">{{ 'System Administrator' if session.get('role') == 'admin' else 'Staff Member' }}</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="page-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}" style="padding: 12px; background: #ffebee; color: #c62828; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ffcdd2;">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    {% else %}
+        {% block login_content %}{% endblock %}
+    {% endif %}
+
+    {% if session.get('user_id') %}
+    <!-- Secret Admin Modal -->
+    <div id="secret-admin-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="card" style="width: 350px; background: #fff; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0;">Admin Authentication</h3>
+                <button onclick="closeAdminModal()" style="background: none; border: none; font-size: 20px; cursor: pointer;"></button>
+            </div>
+            <div id="admin-error" class="alert alert-error" style="display: none; padding: 10px; background: #fee; color: red; margin-bottom: 15px; border-radius: 4px;"></div>
+            <form onsubmit="submitAdminAuth(event)">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Username</label>
+                    <input type="text" id="admin-username" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px;">Password</label>
+                    <input type="password" id="admin-password" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px; background: #111; color: white; border: none; border-radius: 4px; cursor: pointer;">Authenticate</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        const searchInput = document.getElementById('global-search-input');
+        const searchDropdown = document.getElementById('search-results-dropdown');
+        
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                if (query.length < 2) {
+                    searchDropdown.style.display = 'none';
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    fetch(`/api/search/customers?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && data.customers.length > 0) {
+                                searchDropdown.innerHTML = data.customers.map(c => `
+                                    <a href="/customer/${c.id}" style="display: block; padding: 10px; border-bottom: 1px solid #eee; text-decoration: none; color: #333;">
+                                        <div style="font-weight: 500;">${c.name} (${c.customer_id})</div>
+                                        <div style="font-size: 12px; color: #666;"> ${c.mobile}</div>
+                                    </a>
+                                `).join('');
+                                searchDropdown.style.display = 'block';
+                            } else {
+                                searchDropdown.innerHTML = '<div style="padding: 10px; color: #666;">No results found</div>';
+                                searchDropdown.style.display = 'block';
+                            }
+                        });
+                }, 300);
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                    searchDropdown.style.display = 'none';
+                }
+            });
+        }
+
+        // Secret Admin Authentication Flow
+        let adminClickCount = 0;
+        const secretLogo = document.getElementById('secret-admin-logo');
+        const adminModal = document.getElementById('secret-admin-modal');
+        
+        if (secretLogo) {
+            document.addEventListener('click', function(e) {
+                if (e.target === secretLogo) {
+                    adminClickCount++;
+                    if (adminClickCount === 7) {
+                        adminClickCount = 0;
+                        document.getElementById('admin-error').style.display = 'none';
+                        document.getElementById('admin-username').value = '';
+                        document.getElementById('admin-password').value = '';
+                        adminModal.style.display = 'flex';
+                    }
+                } else if (adminModal && !adminModal.contains(e.target)) {
+                    adminClickCount = 0;
+                }
+            });
+        }
+        
+        function closeAdminModal() {
+            adminModal.style.display = 'none';
+            document.getElementById('admin-error').style.display = 'none';
+            document.getElementById('admin-username').value = '';
+            document.getElementById('admin-password').value = '';
+            adminClickCount = 0;
+        }
+
+        async function submitAdminAuth(e) {
+            e.preventDefault();
+            const u = document.getElementById('admin-username').value;
+            const p = document.getElementById('admin-password').value;
+            
+            try {
+                const res = await fetch('/api/admin/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    const err = document.getElementById('admin-error');
+                    err.textContent = data.message;
+                    err.style.display = 'block';
+                }
+            } catch (err) {
+                alert('Authentication failed.');
+            }
+        }
+    </script>
+    {% endif %}
+</body>
+</html>

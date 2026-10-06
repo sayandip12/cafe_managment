@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Bill History - Cyber Cafe{% endblock %}
+
+{% block content %}
+<div class="header-action">
+    <h2> Bill History</h2>
+    <a href="{{ url_for('billing_list') }}" class="btn">Back to Pending Bills</a>
+</div>
+
+<div class="card">
+    {% if bills %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Bill ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>PC</th>
+                <th>Total Amount</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in bills %}
+            <tr>
+                <td>#{{ b.id }}</td>
+                <td>{{ b.created_at.split()[0] if b.created_at else '' }}</td>
+                <td>{{ b.customer_name }}</td>
+                <td>{{ b.computer_number }}</td>
+                <td>₹{{ "%.2f"|format(b.total_amount) }}</td>
+                <td>
+                    <span class="badge" style="background: {{ '#e3f2fd' if b.payment_method == 'UPI' else '#f5f5f5' }}; color: {{ '#1976d2' if b.payment_method == 'UPI' else '#616161' }}; border: 1px solid {{ '#bbdefb' if b.payment_method == 'UPI' else '#e0e0e0' }}; padding: 3px 8px; border-radius: 12px; font-size: 0.85em;">{{ b.payment_method }}</span>
+                </td>
+                <td>
+                    {% if b.payment_status == 'Paid' %}
+                        <span class="badge" style="background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 3px 8px; border-radius: 12px; font-size: 0.85em;">Paid</span>
+                    {% else %}
+                        <span class="badge" style="background: #fff8e1; color: #f57f17; border: 1px solid #ffecb3; padding: 3px 8px; border-radius: 12px; font-size: 0.85em;">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('view_receipt', bill_id=b.id) }}" class="btn btn-sm" style="background: white; color: #333; border: 1px solid #ccc;">View Receipt</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No bills found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

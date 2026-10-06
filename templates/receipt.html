@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Receipt #{{ bill.id }} - Cyber Cafe{% endblock %}
+
+{% block head %}
+<style>
+    @media print {
+        body {
+            background: white !important;
+        }
+        .sidebar, .top-header, .header-action, .btn {
+            display: none !important;
+        }
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+        .receipt-card {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    }
+    
+    .receipt-card {
+        background: white;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid #eaeaea;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .receipt-header {
+        text-align: center;
+        border-bottom: 2px dashed #ccc;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .receipt-header h1 {
+        margin: 0 0 5px 0;
+        font-size: 1.8em;
+        letter-spacing: 2px;
+    }
+    
+    .receipt-header p {
+        margin: 0;
+        color: #555;
+    }
+    
+    .receipt-details {
+        margin-bottom: 30px;
+    }
+    
+    .receipt-details p {
+        margin: 5px 0;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    
+    .receipt-table th {
+        text-align: left;
+        border-bottom: 1px dashed #ccc;
+        border-top: 1px dashed #ccc;
+        padding: 10px 0;
+    }
+    
+    .receipt-table td {
+        padding: 8px 0;
+    }
+    
+    .receipt-table .amount-col {
+        text-align: right;
+    }
+    
+    .receipt-totals {
+        border-top: 2px dashed #ccc;
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+    
+    .receipt-totals p {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+    }
+    
+    .receipt-totals h3 {
+        display: flex;
+        justify-content: space-between;
+        margin: 15px 0 0 0;
+        font-size: 1.2em;
+    }
+    
+    .receipt-footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 0.9em;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header-action">
+    <h2> Receipt</h2>
+    <div>
+        <a href="{{ url_for('billing_history') }}" class="btn" style="background: white; color: #333; border: 1px solid #ccc; margin-right: 10px;">Back</a>
+        <button onclick="window.print()" class="btn"> Print Receipt</button>
+    </div>
+</div>
+
+<div class="receipt-card">
+    <div class="receipt-header">
+        <h1>CYBER CAFE</h1>
+        <p>Premium Internet & Services</p>
+        <p style="margin-top: 10px;">Bill No: #{{ "%04d"|format(bill.id) }}</p>
+        <p>Date: {{ bill.created_at }}</p>
+    </div>
+    
+    <div class="receipt-details">
+        <p><span>Customer:</span> <strong>{{ bill.customer_name }} ({{ bill.cust_ref }})</strong></p>
+        <p><span>PC Station:</span> <strong>{{ bill.computer_number }}</strong></p>
+        <p><span>Session:</span> <strong>{{ bill.start_time.split()[1] }} to {{ bill.end_time.split()[1] }} ({{ bill.duration_minutes }} min)</strong></p>
+        <p><span>Hourly Rate:</span> <strong>₹{{ "%.2f"|format(bill.hourly_rate) }}/hr</strong></p>
+    </div>
+    
+    <table class="receipt-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th style="text-align: center;">Qty</th>
+                <th class="amount-col">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>PC Usage Charge</td>
+                <td style="text-align: center;">1</td>
+                <td class="amount-col">₹{{ "%.2f"|format(bill.usage_charge) }}</td>
+            </tr>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.service_name }} (₹{{ "%.2f"|format(item.rate) }})</td>
+                <td style="text-align: center;">{{ item.quantity }}</td>
+                <td class="amount-col">₹{{ "%.2f"|format(item.amount) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="receipt-totals">
+        <p><span>Subtotal:</span> <span>₹{{ "%.2f"|format(bill.subtotal) }}</span></p>
+        <p><span>Payment Method:</span> <span>{{ bill.payment_method }}</span></p>
+        <p><span>Payment Status:</span> <span>{{ bill.payment_status }}</span></p>
+        <h3><span>GRAND TOTAL:</span> <span>₹{{ "%.2f"|format(bill.total_amount) }}</span></h3>
+    </div>
+    
+    <div class="receipt-footer">
+        <p>Thank you for visiting!</p>
+        <p>Please come again.</p>
+    </div>
+</div>
+{% endblock %}

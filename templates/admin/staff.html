@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Staff Management - Cyber Cafe{% endblock %}
+
+{% block content %}
+<div class="header-action">
+    <h2>👔 Staff Management</h2>
+    <button class="btn" onclick="document.getElementById('add-staff-modal').style.display='flex'">+ Add Staff</button>
+</div>
+
+<div class="card">
+    {% if staff %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in staff %}
+            <tr>
+                <td>#{{ s.id }}</td>
+                <td>{{ s.name }}</td>
+                <td>{{ s.username }}</td>
+                <td><span class="badge" style="background: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb;">{{ s.role|title }}</span></td>
+                <td>
+                    {% if s.is_active %}
+                        <span class="badge" style="background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">Active</span>
+                    {% else %}
+                        <span class="badge" style="background: #ffebee; color: #c62828; border: 1px solid #ffcdd2;">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>{{ s.created_at.split()[0] if s.created_at else '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No staff members found.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Staff Modal -->
+<div id="add-staff-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="card" style="width: 400px; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">Add New Staff</h3>
+            <button onclick="document.getElementById('add-staff-modal').style.display='none'" style="background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
+        </div>
+        
+        <form id="addStaffForm">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Full Name</label>
+                <input type="text" id="staff-name" required class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Username</label>
+                <input type="text" id="staff-username" required class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px;">Password</label>
+                <input type="password" id="staff-password" required class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%; padding: 10px;">Create Staff Account</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('addStaffForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('staff-name').value;
+    const username = document.getElementById('staff-username').value;
+    const password = document.getElementById('staff-password').value;
+    
+    try {
+        const response = await fetch('/api/staff/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, username, password })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert("Error: " + data.message);
+        }
+    } catch (err) {
+        alert("Network error occurred.");
+    }
+});
+</script>
+{% endblock %}

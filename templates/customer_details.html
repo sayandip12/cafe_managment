@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Details - Cyber Cafe Management System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{{ url_for('customers_view') }}" style="text-decoration: none; color: var(--text-secondary); font-size: 14px;"> Back to Customers</a>
+        <h1 style="margin-top: 8px;">Customer Details: {{ customer.name }}</h1>
+        <p>ID: <strong>{{ customer.customer_id }}</strong></p>
+    </div>
+</div>
+
+<div style="display: flex; gap: 24px;">
+    <!-- Customer Info Card -->
+    <div class="card" style="flex: 1; height: fit-content;">
+        <div class="card-title">Profile Information</div>
+        <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Mobile</div>
+            <div style="font-weight: 500; font-size: 15px;">{{ customer.mobile }}</div>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Email</div>
+            <div style="font-weight: 500; font-size: 15px;">{{ customer.email or 'N/A' }}</div>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Address</div>
+            <div style="font-weight: 500; font-size: 15px;">{{ customer.address or 'N/A' }}</div>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Registered Since</div>
+            <div style="font-weight: 500; font-size: 15px;">{{ customer.created_at[:10] }}</div>
+        </div>
+    </div>
+    
+    <!-- Session History Card -->
+    <div class="card" style="flex: 2;">
+        <div class="card-title">Session History</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Session ID</th>
+                    <th>Computer</th>
+                    <th>Start Time</th>
+                    <th>Duration</th>
+                    <th>Rate/Hr</th>
+                    <th>Charge</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                <tr>
+                    <td>#{{ session.id }}</td>
+                    <td>{{ session.computer_number }}</td>
+                    <td>{{ session.start_time }}</td>
+                    <td>{% if session.duration_minutes %}{{ session.duration_minutes }} min{% else %}-{% endif %}</td>
+                    <td>₹{{ session.hourly_rate }}</td>
+                    <td>{% if session.usage_charge != None %}₹{{ session.usage_charge }}{% else %}-{% endif %}</td>
+                    <td>
+                        <span class="status-badge {% if session.status == 'Completed' %}completed{% else %}active{% endif %}">
+                            {{ session.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-secondary);">No session history found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

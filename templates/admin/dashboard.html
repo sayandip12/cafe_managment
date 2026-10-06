@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Cyber Cafe Management System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Good Morning, Admin!</h1>
+        <p>Here's what's happening at your cyber cafe today.</p>
+    </div>
+    <div class="date-widget">
+        <span></span>
+        <div class="date-info">
+            <span class="date">{{ current_date_str | default("Today") }}</span>
+            <span class="time" id="live-time">10:24 AM</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid-container grid-4">
+    <div class="card stat-card">
+        <div class="icon"></div>
+        <div class="info">
+            <div class="label">Total Customers</div>
+            <div class="value">{{ total_customers }}</div>
+        </div>
+    </div>
+    
+    <div class="card stat-card">
+        <div class="icon"></div>
+        <div class="info">
+            <div class="label">Computers Online</div>
+            <div class="value">{{ in_use_pcs }} / {{ total_pcs }}</div>
+            <div style="background: var(--border-color); height: 4px; border-radius: 2px; margin-top: 8px;">
+                <div style="background: var(--text-primary); height: 100%; border-radius: 2px; width: {{ (in_use_pcs / total_pcs * 100) if total_pcs > 0 else 0 }}%;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card stat-card">
+        <div class="icon">₹</div>
+        <div class="info">
+            <div class="label">Today's Revenue</div>
+            <div class="value">₹ {{ today_revenue }}</div>
+        </div>
+    </div>
+    
+    <div class="card stat-card">
+        <div class="icon"></div>
+        <div class="info">
+            <div class="label">Total Sessions</div>
+            <div class="value">{{ today_sessions }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-container grid-3">
+    <!-- Computer Status -->
+    <div class="card">
+        <div class="card-title">
+            Computer Status
+            <a href="#" style="font-size: 12px; color: var(--text-primary); text-decoration: none;">View All </a>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-around; height: 150px;">
+            <div style="width: 120px; height: 120px; border-radius: 50%; border: 12px solid var(--text-primary); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div style="font-size: 24px; font-weight: 700;">{{ total_pcs }}</div>
+                <div style="font-size: 10px; color: var(--text-secondary);">Total PCs</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; gap: 24px;">
+                    <span style="font-size: 13px; color: var(--text-secondary);"><span style="color: var(--text-primary);"></span> In Use</span>
+                    <span style="font-weight: 600;">{{ in_use_pcs }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 24px;">
+                    <span style="font-size: 13px; color: var(--text-secondary);"><span style="color: #999;"></span> Available</span>
+                    <span style="font-weight: 600;">{{ available_pcs }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 24px;">
+                    <span style="font-size: 13px; color: var(--text-secondary);"><span style="color: #ccc;"></span> Maintenance</span>
+                    <span style="font-weight: 600;">{{ maintenance_pcs }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card" style="grid-column: span 2;">
+        <div class="card-title">Quick Actions</div>
+        <div class="grid-container grid-4" style="margin-bottom: 0;">
+            <div class="quick-action-btn" onclick="window.location.href='{{ url_for('admin_computers') }}'" style="cursor: pointer;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500;">Add Computer</span>
+            </div>
+            <div class="quick-action-btn" onclick="window.location.href='{{ url_for('admin_staff') }}'" style="cursor: pointer;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500;">Add Staff</span>
+            </div>
+            <div class="quick-action-btn" onclick="window.location.href='{{ url_for('admin_services') }}'" style="cursor: pointer;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500;">Manage Rates</span>
+            </div>
+            <div class="quick-action-btn" onclick="window.location.href='{{ url_for('admin_reports') }}'" style="cursor: pointer;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500;">View Reports</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-container grid-2">
+    <!-- Recent Sessions -->
+    <div class="card">
+        <div class="card-title">
+            Recent Sessions
+            <a href="#" style="font-size: 12px; color: var(--text-primary); text-decoration: none;">View All </a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>PC</th>
+                    <th>Start Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in recent_sessions %}
+                <tr>
+                    <td>{{ session.customer_name }}</td>
+                    <td>{{ session.computer_number }}</td>
+                    <td>{{ session.start_time.split(' ')[1][:5] if session.start_time else '-' }}</td>
+                    <td><span class="status-badge {% if session.status == 'Active' %}active{% else %}completed{% endif %}">{{ session.status }}</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-secondary);">No recent sessions</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Payments -->
+    <div class="card">
+        <div class="card-title">
+            Recent Payments
+            <a href="#" style="font-size: 12px; color: var(--text-primary); text-decoration: none;">View All </a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in recent_payments %}
+                <tr>
+                    <td>{{ payment.customer_name }}</td>
+                    <td>₹ {{ payment.total_amount }}</td>
+                    <td>{{ payment.payment_method }}</td>
+                    <td><span class="status-badge active">{{ payment.payment_status }}</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-secondary);">No recent payments</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('live-time').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+</script>
+{% endblock %}

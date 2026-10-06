@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Billing - Cyber Cafe{% endblock %}
+
+{% block content %}
+<div class="header-action">
+    <h2> Pending Bills</h2>
+    <a href="{{ url_for('billing_history') }}" class="btn">View Bill History</a>
+</div>
+
+<div class="card">
+    {% if sessions %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Session ID</th>
+                <th>Customer</th>
+                <th>PC</th>
+                <th>Ended At</th>
+                <th>Duration</th>
+                <th>Usage Charge</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sessions %}
+            <tr>
+                <td>#{{ s.session_id }}</td>
+                <td>{{ s.customer_name }} <small>({{ s.cust_ref }})</small></td>
+                <td>{{ s.computer_number }}</td>
+                <td>{{ s.end_time }}</td>
+                <td>{{ s.duration_minutes }} min</td>
+                <td>₹{{ "%.2f"|format(s.usage_charge) }}</td>
+                <td>
+                    <a href="{{ url_for('create_bill', session_id=s.session_id) }}" class="btn btn-sm">Create Bill</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No completed sessions waiting to be billed.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

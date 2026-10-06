@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Room View - Cyber Cafe Management System{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/room.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Room View</h1>
+        <p>Live cyber cafe seating arrangement.</p>
+    </div>
+    <div style="display: flex; gap: 24px; background: #fff; padding: 12px 24px; border-radius: 12px; box-shadow: var(--shadow-sm);">
+        <div style="text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Total PCs</div>
+            <div style="font-weight: 600;">{{ total_pcs }}</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Available</div>
+            <div style="font-weight: 600;">{{ available_pcs }}</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary);">In Use</div>
+            <div style="font-weight: 600;">{{ in_use_pcs }}</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Maintenance</div>
+            <div style="font-weight: 600;">{{ maintenance_pcs }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="room-layout">
+    <!-- LEFT HALF (Groups 1 and 2) -->
+    <div class="room-half">
+        
+        <!-- Group 1 -->
+        <div class="pc-group">
+            {% for i in range(0, 3) %}
+            <div class="pc-pair">
+                {% set pc1 = computers[i*2] %}
+                <div class="pc-station {% if pc1.status == 'Available' %}available{% elif pc1.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc1.id }}, '{{ pc1.computer_number }}', '{{ pc1.status }}', {{ pc1.hourly_rate }})" id="pc-{{ pc1.id }}">
+                    {% if pc1.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc1.computer_number }}</span>
+                </div>
+                <div class="small-table"></div>
+                {% set pc2 = computers[i*2 + 1] %}
+                <div class="pc-station {% if pc2.status == 'Available' %}available{% elif pc2.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc2.id }}, '{{ pc2.computer_number }}', '{{ pc2.status }}', {{ pc2.hourly_rate }})" id="pc-{{ pc2.id }}">
+                    {% if pc2.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc2.computer_number }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Group 2 -->
+        <div class="pc-group">
+            {% for i in range(3, 6) %}
+            <div class="pc-pair">
+                {% set pc1 = computers[i*2] %}
+                <div class="pc-station {% if pc1.status == 'Available' %}available{% elif pc1.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc1.id }}, '{{ pc1.computer_number }}', '{{ pc1.status }}', {{ pc1.hourly_rate }})" id="pc-{{ pc1.id }}">
+                    {% if pc1.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc1.computer_number }}</span>
+                </div>
+                <div class="small-table"></div>
+                {% set pc2 = computers[i*2 + 1] %}
+                <div class="pc-station {% if pc2.status == 'Available' %}available{% elif pc2.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc2.id }}, '{{ pc2.computer_number }}', '{{ pc2.status }}', {{ pc2.hourly_rate }})" id="pc-{{ pc2.id }}">
+                    {% if pc2.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc2.computer_number }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+
+    <!-- RIGHT HALF (Groups 3 and 4) -->
+    <div class="room-half">
+        
+        <!-- Group 3 -->
+        <div class="pc-group">
+            {% for i in range(6, 9) %}
+            <div class="pc-pair">
+                {% set pc1 = computers[i*2] %}
+                <div class="pc-station {% if pc1.status == 'Available' %}available{% elif pc1.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc1.id }}, '{{ pc1.computer_number }}', '{{ pc1.status }}', {{ pc1.hourly_rate }})" id="pc-{{ pc1.id }}">
+                    {% if pc1.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc1.computer_number }}</span>
+                </div>
+                <div class="small-table"></div>
+                {% set pc2 = computers[i*2 + 1] %}
+                <div class="pc-station {% if pc2.status == 'Available' %}available{% elif pc2.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc2.id }}, '{{ pc2.computer_number }}', '{{ pc2.status }}', {{ pc2.hourly_rate }})" id="pc-{{ pc2.id }}">
+                    {% if pc2.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc2.computer_number }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Group 4 -->
+        <div class="pc-group">
+            {% for i in range(9, 12) %}
+            <div class="pc-pair">
+                {% set pc1 = computers[i*2] %}
+                <div class="pc-station {% if pc1.status == 'Available' %}available{% elif pc1.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc1.id }}, '{{ pc1.computer_number }}', '{{ pc1.status }}', {{ pc1.hourly_rate }})" id="pc-{{ pc1.id }}">
+                    {% if pc1.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc1.computer_number }}</span>
+                </div>
+                <div class="small-table"></div>
+                {% set pc2 = computers[i*2 + 1] %}
+                <div class="pc-station {% if pc2.status == 'Available' %}available{% elif pc2.status == 'In Use' %}in-use{% else %}maintenance{% endif %}" onclick="openPanel({{ pc2.id }}, '{{ pc2.computer_number }}', '{{ pc2.status }}', {{ pc2.hourly_rate }})" id="pc-{{ pc2.id }}">
+                    {% if pc2.status == 'Maintenance' %}<span class="wrench-icon"></span>{% endif %}
+                    <span class="pc-label">{{ pc2.computer_number }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+
+<!-- Side Action Panel -->
+<div class="action-panel" id="actionPanel">
+    <button class="close-btn" onclick="closePanel()"></button>
+    <h2 id="panel-pc-title">PC-01</h2>
+    <div class="panel-status" id="panel-pc-status">Available</div>
+    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 24px;">Rate: ₹<span id="panel-pc-rate">40</span> / hour</div>
+    
+    <div class="panel-content" id="panel-content-available" style="display: none;">
+        <div class="form-group">
+            <label style="display: flex; justify-content: space-between;">
+                <span>Select Customer</span>
+                <a href="{{ url_for('customers_view') }}" style="color: #007aff; text-decoration: none;">+ Add New</a>
+            </label>
+            <select id="customer-select">
+                <option value="" disabled selected>-- Select existing customer --</option>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}">{{ customer.name }} ({{ customer.customer_id }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn-primary" onclick="startSession()">Start Session</button>
+    </div>
+    
+    <div class="panel-content" id="panel-content-in-use" style="display: none;">
+        <div style="margin-bottom: 24px;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Customer</div>
+            <div style="font-weight: 600; font-size: 16px;" id="active-customer-name">John Doe</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Start Time</div>
+            <div style="font-weight: 500;" id="active-start-time">10:00 AM</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+            <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">Live Duration</div>
+            <div class="live-timer" id="live-timer">00:00:00</div>
+        </div>
+        <button class="btn-danger" onclick="endSession()">End Session</button>
+    </div>
+    
+    <div class="panel-content" id="panel-content-maintenance" style="display: none;">
+        <p style="color: var(--text-secondary); text-align: center; margin-top: 40px;">
+             This computer is currently unavailable and under maintenance.
+        </p>
+    </div>
+    
+    {% if session.get('role') == 'admin' %}
+    <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+        <button class="btn" style="width: 100%; border: 1px solid var(--border-color);" onclick="toggleMaintenance()">Toggle Maintenance</button>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Data passed from backend
+    const sessionsByPc = {{ sessions_by_pc | tojson }};
+    
+    let currentSelectedPcId = null;
+    let timerInterval = null;
+    let currentStartTime = null;
+    
+    function openPanel(id, number, status, rate) {
+        // Handle glowing selection
+        document.querySelectorAll('.pc-station').forEach(el => el.classList.remove('selected'));
+        document.getElementById('pc-' + id).classList.add('selected');
+        
+        currentSelectedPcId = id;
+        
+        document.getElementById('panel-pc-title').textContent = number;
+        document.getElementById('panel-pc-status').textContent = status;
+        document.getElementById('panel-pc-rate').textContent = rate;
+        
+        // Reset panel views
+        document.getElementById('panel-content-available').style.display = 'none';
+        document.getElementById('panel-content-in-use').style.display = 'none';
+        document.getElementById('panel-content-maintenance').style.display = 'none';
+        
+        if (timerInterval) clearInterval(timerInterval);
+        
+        if (status === 'Available') {
+            document.getElementById('panel-content-available').style.display = 'block';
+        } else if (status === 'In Use') {
+            document.getElementById('panel-content-in-use').style.display = 'block';
+            
+            // Populate active session details
+            const sessionData = sessionsByPc[id];
+            if (sessionData) {
+                document.getElementById('active-customer-name').textContent = sessionData.customer_name;
+                
+                // Parse date (e.g., '2025-09-15 10:20:30')
+                const startStr = sessionData.start_time;
+                currentStartTime = new Date(startStr.replace(' ', 'T')); 
+                
+                document.getElementById('active-start-time').textContent = currentStartTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                updateTimer();
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        } else if (status === 'Maintenance') {
+            document.getElementById('panel-content-maintenance').style.display = 'block';
+        }
+        
+        document.getElementById('actionPanel').classList.add('open');
+    }
+    
+    function closePanel() {
+        document.getElementById('actionPanel').classList.remove('open');
+        document.querySelectorAll('.pc-station').forEach(el => el.classList.remove('selected'));
+        if (timerInterval) clearInterval(timerInterval);
+    }
+    
+    function updateTimer() {
+        if (!currentStartTime) return;
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - currentStartTime) / 1000);
+        
+        if (diffInSeconds < 0) return; // Time sync issue
+        
+        const h = String(Math.floor(diffInSeconds / 3600)).padStart(2, '0');
+        const m = String(Math.floor((diffInSeconds % 3600) / 60)).padStart(2, '0');
+        const s = String(diffInSeconds % 60).padStart(2, '0');
+        
+        document.getElementById('live-timer').textContent = `${h}:${m}:${s}`;
+    }
+    
+    async function startSession() {
+        const customerId = document.getElementById('customer-select').value;
+        if (!customerId) {
+            alert("Please select a customer first.");
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/session/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    computer_id: currentSelectedPcId,
+                    customer_id: parseInt(customerId)
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            alert("Error starting session.");
+        }
+    }
+    
+    async function endSession() {
+        if (!confirm("Are you sure you want to end this session?")) return;
+        
+        const sessionData = sessionsByPc[currentSelectedPcId];
+        if (!sessionData) return;
+        
+        try {
+            const res = await fetch('/api/session/end', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: sessionData.id
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            alert("Error ending session.");
+        }
+    }
+    
+    {% if session.get('role') == 'admin' %}
+    async function toggleMaintenance() {
+        try {
+            const res = await fetch('/api/computer/' + currentSelectedPcId + '/maintenance', {
+                method: 'POST'
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            alert("Error toggling maintenance.");
+        }
+    }
+    {% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,226 @@
+/* Room View Specific Styles */
+
+.room-layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 80px; /* Space between the two main halves */
+    padding: 40px;
+    background-color: #ffffff; /* Clean white background */
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+}
+
+.room-half {
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Gap between the groups of 6 */
+}
+
+/* A group of 6 PCs (2-2-2) */
+.pc-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Gap between rows in a group */
+}
+
+/* A pair of PCs with a table in between */
+.pc-pair {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* PC Station styling */
+.pc-station {
+    width: 60px;
+    height: 60px;
+    background-color: #ffffff;
+    border: 2px solid #111111;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.pc-station .pc-label {
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* Status: Available */
+.pc-station.available {
+    border-color: #34c759; /* Green */
+}
+
+.pc-station.available:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Status: In Use */
+.pc-station.in-use {
+    border-color: #ff3b30; /* Red */
+}
+
+.pc-station.in-use::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: #ff3b30;
+    border-radius: 50%;
+}
+
+.pc-station.in-use:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Status: Maintenance */
+.pc-station.maintenance {
+    cursor: not-allowed;
+    border-color: #ffcc00; /* Yellow */
+}
+
+.pc-station.maintenance .wrench-icon {
+    font-size: 20px;
+    color: #111;
+}
+
+/* Selected / Booking state */
+.pc-station.selected {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Small Table between PCs */
+.small-table {
+    width: 24px;
+    height: 48px;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d6;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #8e8e93;
+}
+
+/* Side Action Panel */
+.action-panel {
+    position: fixed;
+    right: -320px;
+    top: 0;
+    width: 320px;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.08);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.action-panel.open {
+    right: 0;
+}
+
+.action-panel .close-btn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.action-panel h2 {
+    margin: 0 0 8px 0;
+}
+
+.action-panel .panel-status {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    border: 1px solid var(--border-color);
+}
+
+.panel-content {
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.live-timer {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: monospace;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background-color: #111;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #333;
+}
+
+.btn-danger {
+    width: 100%;
+    padding: 12px;
+    background-color: #ffffff;
+    color: #ff3b30;
+    border: 1px solid #ff3b30;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background-color: #ffefef;
+}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Computers - Cyber Cafe Management System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Computers Management</h1>
+        <p>Manage cafe computers and their hourly rates.</p>
+    </div>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>PC Number</th>
+                <th>Name</th>
+                <th>Hourly Rate</th>
+                <th>Current Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pc in computers %}
+            <tr>
+                <td><strong>{{ pc.computer_number }}</strong></td>
+                <td>{{ pc.computer_name }}</td>
+                <td>₹ {{ pc.hourly_rate }}</td>
+                <td>
+                    <span class="status-badge {% if pc.status == 'Available' %}completed{% elif pc.status == 'In Use' %}active{% else %}{% endif %}">{{ pc.status }}</span>
+                </td>
+                <td>
+                    <button class="btn" style="padding: 4px 8px; font-size: 12px;" onclick="openEditPcModal({{ pc.id }}, '{{ pc.computer_number }}', '{{ pc.computer_name }}', {{ pc.hourly_rate }})">Edit Rate/Name</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 24px; color: var(--text-secondary);">No computers found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div id="pcModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="card" style="width: 400px;">
+        <div class="card-title">Edit Computer: <span id="modalPcNumber"></span></div>
+        <input type="hidden" id="pcId">
+        
+        <div class="form-group">
+            <label>PC Name (Optional)</label>
+            <input type="text" id="pcName" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div class="form-group">
+            <label>Hourly Rate (₹)</label>
+            <input type="number" id="pcRate" min="0" step="0.5" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button class="btn" style="flex: 1;" onclick="closePcModal()">Cancel</button>
+            <button class="btn-primary" style="flex: 1;" onclick="savePc()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditPcModal(id, number, name, rate) {
+        document.getElementById('modalPcNumber').textContent = number;
+        document.getElementById('pcId').value = id;
+        document.getElementById('pcName').value = name || '';
+        document.getElementById('pcRate').value = rate;
+        document.getElementById('pcModal').style.display = 'flex';
+    }
+    
+    function closePcModal() {
+        document.getElementById('pcModal').style.display = 'none';
+    }
+    
+    async function savePc() {
+        const id = document.getElementById('pcId').value;
+        const name = document.getElementById('pcName').value.trim();
+        const rate = parseFloat(document.getElementById('pcRate').value);
+        
+        if (isNaN(rate)) {
+            alert("Rate must be a valid number.");
+            return;
+        }
+        
+        if (rate < 0) {
+            alert("Rate cannot be negative.");
+            return;
+        }
+        
+        try {
+            const res = await fetch(`/api/computer/edit/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    computer_name: name,
+                    hourly_rate: rate
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            alert("Error updating computer.");
+        }
+    }
+</script>
+{% endblock %}

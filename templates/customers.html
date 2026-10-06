@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Customers - Cyber Cafe Management System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Customers</h1>
+        <p>Manage cafe customers and view their history.</p>
+    </div>
+    <div style="display: flex; gap: 16px; align-items: center;">
+        <input type="text" id="searchInput" placeholder="Search by name or mobile..." onkeyup="filterCustomers()" style="padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 8px; width: 250px;">
+        <button class="btn-primary" onclick="openAddModal()">+ Add Customer</button>
+    </div>
+</div>
+
+<div class="card">
+    <table id="customersTable">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr class="customer-row">
+                <td><strong>{{ customer.customer_id }}</strong></td>
+                <td class="cust-name">{{ customer.name }}</td>
+                <td class="cust-mobile">{{ customer.mobile }}</td>
+                <td>{{ customer.email or '-' }}</td>
+                <td>{{ customer.created_at[:10] }}</td>
+                <td>
+                    <a href="{{ url_for('customer_details', customer_id=customer.id) }}" class="btn" style="padding: 4px 8px; font-size: 12px; margin-right: 8px; text-decoration: none;">View Details</a>
+                    <button class="btn" style="padding: 4px 8px; font-size: 12px;" onclick="openEditModal({{ customer.id }}, '{{ customer.name }}', '{{ customer.mobile }}', '{{ customer.email }}', '{{ customer.address }}')">Edit</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-secondary);">No customers found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Background -->
+<div id="customerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="card" style="width: 400px;">
+        <div class="card-title" id="modalTitle">Add Customer</div>
+        <input type="hidden" id="customerId">
+        
+        <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="custName" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div class="form-group">
+            <label>Mobile *</label>
+            <input type="text" id="custMobile" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="custEmail" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div class="form-group">
+            <label>Address</label>
+            <textarea id="custAddress" rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; resize: none;"></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button class="btn" style="flex: 1;" onclick="closeModal()">Cancel</button>
+            <button class="btn-primary" style="flex: 1;" onclick="saveCustomer()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterCustomers() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('.customer-row');
+        
+        rows.forEach(row => {
+            const name = row.querySelector('.cust-name').textContent.toLowerCase();
+            const mobile = row.querySelector('.cust-mobile').textContent.toLowerCase();
+            if (name.includes(input) || mobile.includes(input)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function openAddModal() {
+        document.getElementById('modalTitle').textContent = 'Add Customer';
+        document.getElementById('customerId').value = '';
+        document.getElementById('custName').value = '';
+        document.getElementById('custMobile').value = '';
+        document.getElementById('custEmail').value = '';
+        document.getElementById('custAddress').value = '';
+        document.getElementById('customerModal').style.display = 'flex';
+    }
+    
+    function openEditModal(id, name, mobile, email, address) {
+        document.getElementById('modalTitle').textContent = 'Edit Customer';
+        document.getElementById('customerId').value = id;
+        document.getElementById('custName').value = name;
+        document.getElementById('custMobile').value = mobile;
+        document.getElementById('custEmail').value = email !== 'None' ? email : '';
+        document.getElementById('custAddress').value = address !== 'None' ? address : '';
+        document.getElementById('customerModal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('customerModal').style.display = 'none';
+    }
+    
+    async function saveCustomer() {
+        const id = document.getElementById('customerId').value;
+        const name = document.getElementById('custName').value.trim();
+        const mobile = document.getElementById('custMobile').value.trim();
+        const email = document.getElementById('custEmail').value.trim();
+        const address = document.getElementById('custAddress').value.trim();
+        
+        if (!name || !mobile) {
+            alert("Name and Mobile are required.");
+            return;
+        }
+        
+        const endpoint = id ? `/api/customer/edit/${id}` : `/api/customer/add`;
+        
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, mobile, email, address })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            alert("Error saving customer.");
+        }
+    }
+</script>
+{% endblock %}

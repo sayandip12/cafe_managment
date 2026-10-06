@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Login - ora CAFE Management System{% endblock %}
+
+{% block head %}
+<style>
+    .login-container {
+        width: 100vw;
+        height: 100vh;
+        background: #0a0a0a;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    .login-bg-diagonal {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 65%;
+        height: 100%;
+        background: linear-gradient(145deg, #2b1154, #4a148c);
+        clip-path: polygon(0 0, 100% 0, 30% 100%, 0 100%);
+        z-index: 1;
+    }
+    
+    .login-left-content {
+        flex: 1;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 10%;
+        pointer-events: none;
+    }
+    
+    .login-right-content {
+        flex: 1;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .welcome-text {
+        color: white;
+        font-size: 3.5rem;
+        margin: 0 0 15px 0;
+        font-weight: 800;
+        text-transform: uppercase;
+        line-height: 1.1;
+        letter-spacing: 2px;
+    }
+    
+    .welcome-subtext {
+        color: rgba(255, 255, 255, 0.85);
+        max-width: 320px;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    .login-form-wrapper {
+        width: 350px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .login-heading {
+        color: white;
+        font-size: 2rem;
+        margin: 0 0 40px 0;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    .input-group {
+        position: relative;
+        margin-bottom: 30px;
+    }
+    
+    .input-group label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .input-group input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 30px 8px 0;
+        outline: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+    
+    .input-group input:focus {
+        border-bottom-color: #9c27b0;
+    }
+    
+    .input-icon {
+        position: absolute;
+        right: 5px;
+        top: 30px;
+        width: 16px;
+        height: 16px;
+        fill: rgba(255, 255, 255, 0.7);
+    }
+    
+    .login-btn {
+        background: linear-gradient(90deg, #8e24aa, #5e35b1);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 15px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(94, 53, 177, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(94, 53, 177, 0.5);
+    }
+    
+    .login-alert {
+        padding: 12px;
+        background: rgba(255, 59, 48, 0.15);
+        color: #ff3b30;
+        border-left: 4px solid #ff3b30;
+        margin-bottom: 25px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .login-bg-diagonal {
+            width: 100%;
+            clip-path: polygon(0 0, 100% 0, 100% 40%, 0 60%);
+        }
+        
+        .login-container {
+            flex-direction: column;
+        }
+        
+        .login-left-content {
+            flex: none;
+            height: 40%;
+            padding: 0 30px;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .welcome-text {
+            font-size: 2.5rem;
+        }
+        
+        .login-right-content {
+            flex: none;
+            height: 60%;
+            padding: 0 30px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block login_content %}
+<div class="login-container">
+    <div class="login-bg-diagonal"></div>
+    
+    <div class="login-left-content">
+        <h1 class="welcome-text">WELCOME<br>BACK!</h1>
+        <p class="welcome-subtext">Access the ora CAFE staff portal to manage customers, active sessions, and billing.</p>
+    </div>
+    
+    <div class="login-right-content">
+        <div class="login-form-wrapper">
+            <h2 class="login-heading">Login</h2>
+            
+            <form method="POST" action="{{ url_for('login') }}">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="login-alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+                
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required>
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                    </svg>
+                </div>
+                
+                <button type="submit" class="login-btn" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

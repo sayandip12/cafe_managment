@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Dashboard - Cyber Cafe Management System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Hello {{ session.get('name') }}!</h1>
+        <p>Let's keep the cafe running smoothly.</p>
+    </div>
+    <div class="date-widget">
+        <span></span>
+        <div class="date-info">
+            <span class="date">{{ current_date_str | default("Today") }}</span>
+            <span class="time" id="live-time">10:24 AM</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid-container grid-4">
+    <div class="card stat-card">
+        <div class="icon"></div>
+        <div class="info">
+            <div class="label">Total PCs</div>
+            <div class="value">{{ available_pcs + in_use_pcs }}</div>
+        </div>
+    </div>
+    
+    <div class="card stat-card">
+        <div class="icon" style="color: #111;"></div>
+        <div class="info">
+            <div class="label">In Use</div>
+            <div class="value">{{ in_use_pcs }}</div>
+        </div>
+    </div>
+    
+    <div class="card stat-card">
+        <div class="icon" style="color: #ccc;"></div>
+        <div class="info">
+            <div class="label">Available</div>
+            <div class="value">{{ available_pcs }}</div>
+        </div>
+    </div>
+    
+    <div class="card stat-card">
+        <div class="icon"></div>
+        <div class="info">
+            <div class="label">Maintenance</div>
+            <div class="value">0</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-container grid-2">
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-title">Quick Actions</div>
+        <div class="grid-container grid-4" style="margin-bottom: 0;">
+            <a href="{{ url_for('customers_view') }}" class="quick-action-btn" style="text-decoration: none; color: inherit;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500; text-align: center;">New<br>Customer</span>
+            </a>
+            <a href="{{ url_for('billing_list') }}" class="quick-action-btn" style="text-decoration: none; color: inherit;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500; text-align: center;">Generate<br>Bill</span>
+            </a>
+            <a href="{{ url_for('room_view') }}" class="quick-action-btn" style="text-decoration: none; color: inherit;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500; text-align: center;">Start<br>Session</span>
+            </a>
+            <a href="{{ url_for('room_view') }}" class="quick-action-btn" style="text-decoration: none; color: inherit;">
+                <span style="font-size: 24px;"></span>
+                <span style="font-size: 13px; font-weight: 500; text-align: center;">End<br>Session</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Today's Collection -->
+    <div class="card">
+        <div class="card-title">Today's Summary</div>
+        <div style="display: flex; gap: 20px; height: 100px; align-items: center; padding: 0 20px;">
+            <div style="flex: 1; text-align: center; border-right: 1px solid var(--border-color);">
+                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Customers Today</div>
+                <div style="font-size: 28px; font-weight: 700;">{{ today_customers }}</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Collection Today</div>
+                <div style="font-size: 28px; font-weight: 700;">₹ {{ today_collection }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sessions -->
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-title">
+        Recent Sessions
+        <a href="#" style="font-size: 12px; color: var(--text-primary); text-decoration: none;">View All </a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>PC</th>
+                <th>Customer</th>
+                <th>Start Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in active_sessions %}
+            <tr>
+                <td><strong>{{ session.computer_number }}</strong></td>
+                <td>{{ session.customer_name }}</td>
+                <td>{{ session.start_time.split(' ')[1][:5] if session.start_time else '-' }}</td>
+                <td><span class="status-badge active">Active</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 32px;">No active sessions currently.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('live-time').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+</script>
+{% endblock %}
